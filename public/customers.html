@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clients Directory - REMS V2</title>
+<link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Chota sa custom style search bar ke liye */
+    .search-container {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  if (sessionStorage.getItem("rems_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>REMS V2</h2>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"> Dashboard</a>
+      <a href="properties.html"> Property Management</a>
+      <a href="transactions.html"> Transactions (Deals)</a>
+      <a href="customers.html" style="background: rgba(255,255,255,0.18);"> Clients Directory</a>
+      <a href="reports.html"> Reports</a>
+      <a href="meetings.html"> Meetings </a>
+      <a href="#" onclick="logout()"> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Clients Directory</h1>
+
+    <div class="card">
+      <p style="color: #666; margin-bottom: 20px;">
+        <em>Note: This is an auto-updating directory. Whenever you add a new property owner or close a deal with a new buyer, their contact information is automatically permanently saved here based on their unique phone number.</em>
+      </p>
+
+      <div class="search-container">
+        <input type="text" id="searchCustomer" onkeyup="handleCustomerSearch()" placeholder="Search by Client Name or Phone Number...">
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Client ID</th>
+              <th>Full Name</th>
+              <th>Phone Number</th>
+            </tr>
+          </thead>
+          <tbody id="customerTable">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

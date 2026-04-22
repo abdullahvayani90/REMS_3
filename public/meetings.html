@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meeting Queue - REMS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<script>
+  if (sessionStorage.getItem("rems_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <h2>REMS</h2>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"> Dashboard</a>
+      <a href="properties.html"> Property Management</a>
+      <a href="transactions.html"> Transactions (Deals)</a>
+      <a href="customers.html"> Clients Directory</a>
+      <a href="reports.html"> Reports</a>
+      <a href="meetings.html" style="background: rgba(255,255,255,0.18);"> Meetings </a>
+      <a href="#" onclick="logout()"> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Scheduled Meetings </h1>
+
+    <div class="form-card card">
+      <h2>Schedule a Meeting</h2>
+
+      <div class="form-row">
+        <input id="m_name" type="text" placeholder="Customer Name">
+        <input id="m_phone" type="text" placeholder="Phone Number">
+      </div>
+
+      <div class="form-row">
+        <input id="m_date" type="date">
+        <input id="m_time" type="time">
+      </div>
+
+      <div class="form-group"> 
+        <input id="m_comments" type="text" placeholder="Comments (optional)">
+      </div>
+
+      <button class="btn-primary" style="margin: 5px 0" onclick="handleAddMeeting()">Add Meeting</button>
+      <button class="btn-primary full-width" onclick="callNextMeeting()">Call Next</button>
+    </div>
+
+    <div class="table-container card" style="margin-top:20px;">
+      <h2>Upcoming Meetings (Queue)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Comments</th>
+          </tr>
+        </thead>
+        <tbody id="meetingTable">
+          </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+
+<script>
+  // This just grabs the data from the inputs and sends it to your app.js DB functions
+  function handleAddMeeting() {
+    const name = document.getElementById("m_name").value.trim();
+    const phone = document.getElementById("m_phone").value.trim();
+    const date = document.getElementById("m_date").value;
+    const time = document.getElementById("m_time").value;
+    const comments = document.getElementById("m_comments").value.trim();
+
+    if (!name || !phone || !date || !time) {
+      alert("All fields except comments are required!");
+      return;
+    }
+
+    // Call the async addMeeting function in app.js
+    addMeeting(name, phone, date, time, comments);
+  }
+</script>
+
+</body>
+</html>

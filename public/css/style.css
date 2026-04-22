@@ -1,0 +1,371 @@
+/* ============================================================
+   GLOBAL RESET & BASE
+============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+body {
+  background: #f4f6fa;
+  color: #2d2d2d;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  width: 100%;
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #3b57c8;
+}
+
+.btn-secondary {
+  padding: 10px 25px;
+  border: 0;
+  border-radius: 8px;
+  transition: 0.2s linear;
+  cursor: pointer;
+  background-color: #6c757d;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Small Buttons (Tables) */
+.btn-sm {
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.btn-edit { background: #4a6cf7; color: white; }
+.btn-edit:hover { background: #3b57c8; }
+
+.btn-delete { background: #d00000; color: white; }
+.btn-delete:hover { background: #a80000; }
+
+/* ============================================================
+   LOGIN PAGE
+============================================================ */
+.page-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+.brand h1 {
+  font-size: 42px;
+  color: #4a6cf7;
+  margin-bottom: 8px;
+}
+
+.brand p {
+  margin-bottom: 25px;
+  color: #555;
+}
+
+.login-card h2 {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #444;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  transition: 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #4a6cf7;
+  outline: none;
+  box-shadow: 0 0 5px rgba(74, 108, 247, 0.3);
+}
+
+.error-msg {
+  margin-top: 12px;
+  padding: 10px;
+  color: #d00000;
+  border-left: 4px solid #d00000;
+  background: #ffe5e5;
+  text-align: left;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   DASHBOARD LAYOUT
+============================================================ */
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: #1e1e2d;
+  color: #fff;
+  padding: 25px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.sidebar h2 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav a {
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: 0.2s;
+  font-size: 15px;
+}
+
+.sidebar-nav a:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Main content */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: scroll;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #1e1e2d;
+}
+
+/* Dashboard Cards (V2 Updated) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+  border-top: 4px solid #2d2d2d;
+}
+
+.stat-card h3 {
+  font-size: 15px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-card .stat-value {
+  font-size: 32px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #1e1e2d;
+}
+
+/* ============================================================
+   FORMS (V2)
+============================================================ */
+.form-card {
+  margin-bottom: 25px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-row input, 
+.form-row select {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #dce1e9;
+  font-size: 14px;
+  background: #fdfdfd;
+  transition: 0.3s;
+}
+
+.form-row input:focus, 
+.form-row select:focus {
+  border-color: #4a6cf7;
+  outline: none;
+  background: white;
+  box-shadow: 0 0 5px rgba(74, 108, 247, 0.2);
+}
+
+/* Search Bar Container */
+.search-container {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.search-container input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #dce1e9;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+/* ============================================================
+   TABLES & BADGES (V2)
+============================================================ */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: white;
+}
+
+th, td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #f0f2f5;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background: #f8f9fc;
+  color: #444;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background: #fbfbfc;
+}
+
+/* Status Badges */
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background-color: #e8f8f5;
+  color: #27ae60;
+}
+
+.badge-danger {
+  background-color: #faeaea;
+  color: #d00000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; padding: 15px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; }
+  .form-row { flex-direction: column; gap: 10px; }
+}
+
+/* ============================================================
+   PAGE TRANSITIONS & ANIMATIONS
+============================================================ */
+/* Animation keyframes define karna */
+@keyframes fadeInSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Main content par animation apply karna */
+.main {
+  animation: fadeInSlideUp 0.5s ease-out forwards;
+}
+
+/* Form cards par thora delay lagana taake staggered effect aaye */
+.card {
+  animation: fadeInSlideUp 0.6s ease-out forwards;
+  opacity: 0; /* Starts hidden before animation kicks in */
+}
+
+/* Tables par mazeed delay */
+.table-container {
+  animation: fadeInSlideUp 0.7s ease-out forwards;
+  opacity: 0;
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - REMS V2</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<script>
+  if (sessionStorage.getItem("rems_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>REMS V2</h2>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" style="background: rgba(255,255,255,0.18);"> Dashboard</a>
+      <a href="properties.html"> Property Management</a>
+      <a href="transactions.html"> Transactions (Deals)</a>
+      <a href="customers.html"> Clients Directory</a>
+      <a href="reports.html"> Reports</a>
+      <a href="meetings.html"> Meetings </a>
+      <a href="#" onclick="logout()"> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Agency Dashboard</h1>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Listings</h3>
+        <p class="stat-value" id="statTotal">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Available</h3>
+        <p class="stat-value" id="statAvailable">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Deals Closed</h3>
+        <p class="stat-value" id="statSold">0</p>
+      </div>
+      <div class="stat-card" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white;">
+        <h3 style="color: white;">Agency Revenue (Commission)</h3>
+        <p class="stat-value" id="statRevenue">Rs 0</p>
+      </div>
+    </div>
+
+    <div class="table-container card">
+      <h2>Recent Inventory</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Area</th>
+            <th>Address</th>
+            <th>Dimensions</th>
+            <th>Demand Price</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="propertyTable">
+          </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

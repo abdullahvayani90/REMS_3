@@ -207,15 +207,25 @@ app.put('/api/properties/restore/:id', async (req, res) => {
 });
 
 // ==========================================
-// MEETINGS ROUTES (Missing for loadAllData)
+// MEETINGS ROUTES (100% Normalized - 3NF)
 // ==========================================
 app.get('/api/meetings', async (req, res) => {
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute(`SELECT * FROM meetings WHERE status = 'Pending' ORDER BY meeting_date ASC, meeting_time ASC`, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+        // SMART JOIN: Database meeting aur customer dono tables ko jod kar data layega
+        const result = await connection.execute(
+            `SELECT m.id, m.meeting_date, m.meeting_time, m.comments, m.status, 
+                    c.name AS customer_name, c.phone 
+             FROM meetings m
+             JOIN customers c ON m.customer_id = c.id
+             WHERE m.status = 'Pending' 
+             ORDER BY m.meeting_date ASC, m.meeting_time ASC`, 
+            [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
         res.json(result.rows);
     } catch (err) {
+        console.error(err);
         res.status(500).send("Error fetching meetings");
     } finally {
         if (connection) { try { await connection.close(); } catch(err){} }
@@ -227,13 +237,20 @@ app.post('/api/meetings', async (req, res) => {
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-
-        // NEW FEATURE: Automatically add meeting client to Client Directory!
-        await getOrCreateCustomer(connection, name, phone);
         
-        await connection.execute(`INSERT INTO meetings (customer_name, phone, meeting_date, meeting_time, comments, status) VALUES (:name, :phone, TO_DATE(:m_date, 'YYYY-MM-DD'), :time, :comments, 'Pending')`, { name, phone, m_date: date, time, comments: comments || '' }, { autoCommit: true });
+        // 1. Get or Create Customer (Returns the Customer ID)
+        const customerId = await getOrCreateCustomer(connection, name, phone);
+
+        // 2. Save only the Customer ID in the Meetings table
+        await connection.execute(
+            `INSERT INTO meetings (customer_id, meeting_date, meeting_time, comments, status) 
+             VALUES (:customerId, TO_DATE(:m_date, 'YYYY-MM-DD'), :time, :comments, 'Pending')`, 
+            { customerId, m_date: date, time, comments: comments || '' }, 
+            { autoCommit: true }
+        );
         res.status(201).send({ message: "Meeting scheduled" });
     } catch (err) {
+        console.error(err);
         res.status(500).send("Error scheduling meeting");
     } finally {
         if (connection) { try { await connection.close(); } catch(err){} }

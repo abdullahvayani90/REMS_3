@@ -261,12 +261,33 @@ app.put('/api/meetings/next', async (req, res) => {
     let connection;
     try {
         connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute(`SELECT * FROM meetings WHERE status = 'Pending' ORDER BY meeting_date ASC, meeting_time ASC FETCH FIRST 1 ROWS ONLY`, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
-        if (result.rows.length === 0) return res.status(404).send({ message: "No meetings" });
+        
+        // SMART FIX: Use JOIN to get Name and Phone from the customers table
+        const result = await connection.execute(
+            `SELECT m.id, m.meeting_date, m.meeting_time, m.comments, m.status, 
+                    c.name AS customer_name, c.phone 
+             FROM meetings m
+             JOIN customers c ON m.customer_id = c.id
+             WHERE m.status = 'Pending' 
+             ORDER BY m.meeting_date ASC, m.meeting_time ASC 
+             FETCH FIRST 1 ROWS ONLY`, 
+            [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        
+        if (result.rows.length === 0) return res.status(404).send({ message: "No meetings left!" });
+        
         const nextMeeting = result.rows[0];
-        await connection.execute(`UPDATE meetings SET status = 'Completed' WHERE id = :id`, { id: nextMeeting.ID }, { autoCommit: true });
+        
+        // Mark as completed using the meeting ID
+        await connection.execute(
+            `UPDATE meetings SET status = 'Completed' WHERE id = :id`, 
+            { id: nextMeeting.ID }, 
+            { autoCommit: true }
+        );
+        
         res.send(nextMeeting);
     } catch (err) {
+        console.error(err);
         res.status(500).send("Error calling next meeting");
     } finally {
         if (connection) { try { await connection.close(); } catch(err){} }

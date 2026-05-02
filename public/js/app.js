@@ -12,7 +12,7 @@ function checkAdminCredentials(u, p) {
 
 function logout() {
   sessionStorage.removeItem("rems_logged_in");
-  window.location.href = "index.html";
+  globalThis.location.href = "index.html";
 }
 
 // ----------------------------------------------------
@@ -380,6 +380,7 @@ function printMonthlyReport() {
   
   html += `</table><h3 style="font-family: sans-serif;">Total Commission Earned: Rs ${totalComm.toLocaleString()}</h3>`;
   
+  printWindow.document.open();
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.print(); // Auto-open print dialog

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const oracledb = require('oracledb');
-const path = require('path'); 
+const path = require('node:path');
 
 const app = express();
 app.use(cors()); 
@@ -65,7 +65,13 @@ app.get('/api/properties', async (req, res) => {
         console.error(err);
         res.status(500).send("Error fetching properties");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -89,7 +95,13 @@ app.post('/api/properties', async (req, res) => {
         console.error(err);
         res.status(500).send("Error adding property");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -103,7 +115,13 @@ app.delete('/api/properties/:id', async (req, res) => {
     } catch (err) {
         res.status(500).send("Error deleting property");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -145,7 +163,13 @@ app.post('/api/transactions/sale', async (req, res) => {
         console.error(err);
         res.status(500).send("Error recording sale");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -172,7 +196,13 @@ app.get('/api/transactions', async (req, res) => {
         console.error(err);
         res.status(500).send("Error fetching transactions");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -185,7 +215,13 @@ app.get('/api/customers', async (req, res) => {
     } catch (err) {
         res.status(500).send("Error fetching customers");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -202,7 +238,13 @@ app.put('/api/properties/restore/:id', async (req, res) => {
     } catch (err) {
         res.status(500).send("Error restoring property");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -228,7 +270,13 @@ app.get('/api/meetings', async (req, res) => {
         console.error(err);
         res.status(500).send("Error fetching meetings");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -253,7 +301,13 @@ app.post('/api/meetings', async (req, res) => {
         console.error(err);
         res.status(500).send("Error scheduling meeting");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 
@@ -290,7 +344,13 @@ app.put('/api/meetings/next', async (req, res) => {
         console.error(err);
         res.status(500).send("Error calling next meeting");
     } finally {
-        if (connection) { try { await connection.close(); } catch(err){} }
+        if (connection) { 
+  try { 
+    await connection.close(); 
+  } catch(closeErr) { 
+    console.error('Error closing connection:', closeErr); 
+  } 
+}
     }
 });
 

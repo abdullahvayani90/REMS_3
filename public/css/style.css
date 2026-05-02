@@ -358,4 +358,13 @@ tr:hover {
   }
 }
 
-/* Main content par animation apply karna */
+.btn-logout {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: inherit;
+  padding: inherit;
+  text-align: left;
+  width: 100%;
+}

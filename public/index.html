@@ -36,8 +36,6 @@
 
       <div id="loginError" class="error-msg" aria-live="polite" hidden></div>
     </section>
-<div id="loginError" class="error-msg" aria-live="polite" hidden></div>
-    </section>
 
     <p style="text-align: center; color: #777; margin-top: 20px;">&copy; <span id="year"></span> REMS. All rights reserved.</p>
 
@@ -69,21 +67,18 @@
         if (ok) {
           // mark session and go to dashboard
           sessionStorage.setItem('rems_logged_in', 'true');
-          window.location.href = 'dashboard.html';
+          globalThis.location.href = 'dashboard.html';
         } else {
           errEl.hidden = false;
           errEl.textContent = 'Invalid username or password.';
         }
-      } else {
-        // Default credentials fallback (change in app.js later)
-        if (u === 'admin' && p === 'admin123') {
-          sessionStorage.setItem('rems_logged_in', 'true');
-          window.location.href = 'dashboard.html';
-        } else {
-          errEl.hidden = false;
-          errEl.textContent = 'Invalid username or password.';
-        }
-      }
+      } else if (u === 'admin' && p === 'admin123') {
+  sessionStorage.setItem('rems_logged_in', 'true');
+  globalThis.location.href = 'dashboard.html';
+} else {
+  errEl.hidden = false;
+  errEl.textContent = 'Invalid username or password.';
+}
     });
   </script>
 </body>

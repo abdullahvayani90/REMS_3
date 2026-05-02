@@ -24,6 +24,8 @@ a {
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.08);
   width: 100%;
+  animation: fadeInSlideUp 0.6s ease-out forwards; 
+  opacity: 0;
 }
 
 /* ============================================================
@@ -101,7 +103,7 @@ a {
 
 .brand p {
   margin-bottom: 25px;
-  color: #555;
+  color: #333;
 }
 
 .login-card h2 {
@@ -194,6 +196,7 @@ a {
   padding: 30px;
   overflow-y: scroll;
   width: 100%;
+  animation: fadeInSlideUp 0.5s ease-out forwards;
 }
 
 .page-title {
@@ -283,6 +286,8 @@ a {
 ============================================================ */
 .table-container {
   overflow-x: auto;
+  animation: fadeInSlideUp 0.7s ease-out forwards; 
+  opacity: 0; 
 }
 
 table {
@@ -354,18 +359,3 @@ tr:hover {
 }
 
 /* Main content par animation apply karna */
-.main {
-  animation: fadeInSlideUp 0.5s ease-out forwards;
-}
-
-/* Form cards par thora delay lagana taake staggered effect aaye */
-.card {
-  animation: fadeInSlideUp 0.6s ease-out forwards;
-  opacity: 0; /* Starts hidden before animation kicks in */
-}
-
-/* Tables par mazeed delay */
-.table-container {
-  animation: fadeInSlideUp 0.7s ease-out forwards;
-  opacity: 0;
-}

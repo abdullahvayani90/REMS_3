@@ -4,7 +4,11 @@ const oracledb = require('oracledb');
 const path = require('node:path');
 
 const app = express();
-app.use(cors()); 
+app.use(cors({
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type']
+}));
 app.use(express.json()); 
 
 // SECURITY FIX: Ab sirf 'public' folder ki files browser mein dikhengi, aapka backend code nahi.

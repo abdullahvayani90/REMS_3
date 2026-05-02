@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const oracledb = require('oracledb');
-const path = require('path'); // YEH LINE ADD KARNI HAI
+const path = require('path'); 
 
 const app = express();
 app.use(cors()); 

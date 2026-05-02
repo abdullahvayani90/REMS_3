@@ -380,10 +380,10 @@ function printMonthlyReport() {
   
   html += `</table><h3 style="font-family: sans-serif;">Total Commission Earned: Rs ${totalComm.toLocaleString()}</h3>`;
   
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.print(); // Auto-open print dialog
+  const blob1 = new Blob([html], { type: 'text/html' });
+const url1 = URL.createObjectURL(blob1);
+printWindow.location.href = url1;
+printWindow.onload = () => { printWindow.print(); };
 }
 
 // Feature: Print Current Active Listings
@@ -407,10 +407,10 @@ function printListings() {
   
   html += `</table>`;
   
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.print();
+  const blob1 = new Blob([html], { type: 'text/html' });
+const url1 = URL.createObjectURL(blob1);
+printWindow.location.href = url1;
+printWindow.onload = () => { printWindow.print(); };
 }
 
 // ----------------------------------------------------

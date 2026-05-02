@@ -262,7 +262,7 @@ function updateReports() {
 // ----------------------------------------------------
 // UI REFRESHERS
 // ----------------------------------------------------
-function refreshUI() {
+let refreshUI = function() {
   if (document.getElementById("propertyTable")) refreshPropertyTable();
   if (document.getElementById("customerTable")) refreshCustomerTable(); 
   if (document.getElementById("meetingTable")) refreshMeetingTable(); 
@@ -355,7 +355,7 @@ function printMonthlyReport() {
   if(!monthInput) return alert("Please select a month first!");
 
   // Filter deals by the selected month
-  const filtered = transactions.filter(t => t.date && t.date.startsWith(monthInput));
+  const filtered = transactions.filter(t => t.date?.startsWith(monthInput));
   
   if(filtered.length === 0) return alert("No transactions found for this month!");
 
@@ -407,6 +407,7 @@ function printListings() {
   
   html += `</table>`;
   
+  printWindow.document.open();
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.print();

@@ -34,7 +34,7 @@ a {
 .btn-primary {
   width: 100%;
   padding: 12px;
-  background: #4a6cf7;
+  background: #3a5bd9;
   color: white;
   border: none;
   font-size: 16px;
@@ -73,10 +73,10 @@ a {
   font-size: 13px;
 }
 
-.btn-edit { background: #4a6cf7; color: white; }
+.btn-edit { background: #3a5bd9; color: white; }
 .btn-edit:hover { background: #3b57c8; }
 
-.btn-delete { background: #d00000; color: white; }
+.btn-delete { background: #b30000; color: white; }
 .btn-delete:hover { background: #a80000; }
 
 /* ============================================================
@@ -366,5 +366,6 @@ tr:hover {
   font-size: inherit;
   padding: inherit;
   text-align: left;
+  margin-top: auto; 
   width: 100%;
 }

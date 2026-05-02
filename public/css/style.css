@@ -323,12 +323,12 @@ tr:hover {
 
 .badge-success {
   background-color: #e8f8f5;
-  color: #27ae60;
+  color: #1a7a45;
 }
 
 .badge-danger {
   background-color: #faeaea;
-  color: #d00000;
+  color: #a80000;
 }
 
 /* Responsive adjustments */

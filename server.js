@@ -16,6 +16,27 @@ const dbConfig = {
     connectString: "localhost:1521/XE"  
 };
 
+// ==========================================
+// DB HELPER: Handles connection lifecycle
+// ==========================================
+async function withConnection(res, errorMsg, callback) {
+    let connection;
+    try {
+        connection = await oracledb.getConnection(dbConfig);
+        await callback(connection);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(errorMsg);
+    } finally {
+        if (connection) {
+            try {
+                await connection.close();
+            } catch (closeErr) {
+                console.error('Error closing connection:', closeErr);
+            }
+        }
+    }
+}
 
 // ==========================================
 // SMART HELPER: Prevent Duplicate Customers
@@ -48,10 +69,7 @@ async function getOrCreateCustomer(connection, name, phone) {
 // PROPERTIES ROUTES (V2)
 // ==========================================
 app.get('/api/properties', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        // SMART FIX: Checking for both 0 and NULL
+    await withConnection(res, "Error fetching properties", async (connection) => {
         const result = await connection.execute(
             `SELECT p.*, c.name AS owner_name, c.phone AS owner_phone 
              FROM properties p 
@@ -60,69 +78,32 @@ app.get('/api/properties', async (req, res) => {
              ORDER BY p.id DESC`,
             [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
-        res.json(result.rows); 
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error fetching properties");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+        res.json(result.rows);
+    });
 });
 
 app.post('/api/properties', async (req, res) => {
     const { type, area, address, dimensions, price, ownerName, ownerPhone } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        
-        // 1. Get or Create Owner
+    await withConnection(res, "Error adding property", async (connection) => {
         const ownerId = await getOrCreateCustomer(connection, ownerName, ownerPhone);
-        
-        // 2. Save Property with Owner ID
         await connection.execute(
             `INSERT INTO properties (property_type, area, address, dimensions, price, owner_id) 
              VALUES (:type, :area, :address, :dim, :price, :ownerId)`,
-            { type, area, address, dim: dimensions, price, ownerId }, { autoCommit: true } 
+            { type, area, address, dim: dimensions, price, ownerId }, { autoCommit: true }
         );
         res.status(201).send({ message: "Property & Owner added successfully" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error adding property");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 app.delete('/api/properties/:id', async (req, res) => {
     const { id } = req.params;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`UPDATE properties SET is_deleted = 1 WHERE id = :id`, { id }, { autoCommit: true });
+    await withConnection(res, "Error deleting property", async (connection) => {
+        await connection.execute(
+            `UPDATE properties SET is_deleted = 1 WHERE id = :id`, 
+            { id }, { autoCommit: true }
+        );
         res.send({ message: "Property soft-deleted successfully" });
-    } catch (err) {
-        res.status(500).send("Error deleting property");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 // ==========================================
@@ -131,46 +112,24 @@ app.delete('/api/properties/:id', async (req, res) => {
 
 app.post('/api/transactions/sale', async (req, res) => {
     const { propertyId, buyerName, buyerPhone, propertyPrice, agencyCommission, date } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        
-        // 1. Find the property to get the Seller's ID
+    await withConnection(res, "Error recording sale", async (connection) => {
         const propResult = await connection.execute(
             `SELECT owner_id FROM properties WHERE id = :propertyId`,
             { propertyId }, { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
         const sellerId = propResult.rows[0].OWNER_ID;
-
-        // 2. Get or Create Buyer
         const buyerId = await getOrCreateCustomer(connection, buyerName, buyerPhone);
-        
-        // 3. Mark Property as Sold
         await connection.execute(
             `UPDATE properties SET status = 'Sold', price = :price WHERE id = :propertyId`,
             { price: propertyPrice, propertyId }, { autoCommit: true }
         );
-
-        // 4. Record Transaction (Linking Seller and Buyer)
         await connection.execute(
             `INSERT INTO transactions (property_id, transaction_type, seller_id, buyer_tenant_id, property_price, agency_commission, transaction_date) 
              VALUES (:propertyId, 'Sale', :sellerId, :buyerId, :propertyPrice, :agencyCommission, TO_DATE(:txnDate, 'YYYY-MM-DD'))`,
             { propertyId, sellerId, buyerId, propertyPrice, agencyCommission, txnDate: date }, { autoCommit: true }
         );
-
         res.status(201).send({ message: "Sale transaction recorded successfully" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error recording sale");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 // ==========================================
@@ -178,10 +137,7 @@ app.post('/api/transactions/sale', async (req, res) => {
 // ==========================================
 
 app.get('/api/transactions', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        // JOIN to get names of both Seller and Buyer
+    await withConnection(res, "Error fetching transactions", async (connection) => {
         const result = await connection.execute(
             `SELECT t.*, p.address, s.name AS seller_name, b.name AS buyer_name 
              FROM transactions t 
@@ -192,37 +148,17 @@ app.get('/api/transactions', async (req, res) => {
             [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
         res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error fetching transactions");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 app.get('/api/customers', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        const result = await connection.execute(`SELECT * FROM customers ORDER BY id DESC`, [], { outFormat: oracledb.OUT_FORMAT_OBJECT });
+    await withConnection(res, "Error fetching customers", async (connection) => {
+        const result = await connection.execute(
+            `SELECT * FROM customers ORDER BY id DESC`, 
+            [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
         res.json(result.rows);
-    } catch (err) {
-        res.status(500).send("Error fetching customers");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 // ==========================================
@@ -230,93 +166,49 @@ app.get('/api/customers', async (req, res) => {
 // ==========================================
 app.put('/api/properties/restore/:id', async (req, res) => {
     const { id } = req.params;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        await connection.execute(`UPDATE properties SET is_deleted = 0 WHERE id = :id`, { id }, { autoCommit: true });
+    await withConnection(res, "Error restoring property", async (connection) => {
+        await connection.execute(
+            `UPDATE properties SET is_deleted = 0 WHERE id = :id`, 
+            { id }, { autoCommit: true }
+        );
         res.send({ message: "Property restored successfully" });
-    } catch (err) {
-        res.status(500).send("Error restoring property");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 // ==========================================
 // MEETINGS ROUTES (100% Normalized - 3NF)
 // ==========================================
 app.get('/api/meetings', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        // SMART JOIN: Database meeting aur customer dono tables ko jod kar data layega
+    await withConnection(res, "Error fetching meetings", async (connection) => {
         const result = await connection.execute(
             `SELECT m.id, m.meeting_date, m.meeting_time, m.comments, m.status, 
                     c.name AS customer_name, c.phone 
              FROM meetings m
              JOIN customers c ON m.customer_id = c.id
              WHERE m.status = 'Pending' 
-             ORDER BY m.meeting_date ASC, m.meeting_time ASC`, 
+             ORDER BY m.meeting_date ASC, m.meeting_time ASC`,
             [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
         res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error fetching meetings");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 app.post('/api/meetings', async (req, res) => {
     const { name, phone, date, time, comments } = req.body;
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        
-        // 1. Get or Create Customer (Returns the Customer ID)
+    await withConnection(res, "Error scheduling meeting", async (connection) => {
         const customerId = await getOrCreateCustomer(connection, name, phone);
-
-        // 2. Save only the Customer ID in the Meetings table
         await connection.execute(
             `INSERT INTO meetings (customer_id, meeting_date, meeting_time, comments, status) 
-             VALUES (:customerId, TO_DATE(:m_date, 'YYYY-MM-DD'), :time, :comments, 'Pending')`, 
-            { customerId, m_date: date, time, comments: comments || '' }, 
+             VALUES (:customerId, TO_DATE(:m_date, 'YYYY-MM-DD'), :time, :comments, 'Pending')`,
+            { customerId, m_date: date, time, comments: comments || '' },
             { autoCommit: true }
         );
         res.status(201).send({ message: "Meeting scheduled" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error scheduling meeting");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 app.put('/api/meetings/next', async (req, res) => {
-    let connection;
-    try {
-        connection = await oracledb.getConnection(dbConfig);
-        
-        // SMART FIX: Use JOIN to get Name and Phone from the customers table
+    await withConnection(res, "Error calling next meeting", async (connection) => {
         const result = await connection.execute(
             `SELECT m.id, m.meeting_date, m.meeting_time, m.comments, m.status, 
                     c.name AS customer_name, c.phone 
@@ -324,34 +216,17 @@ app.put('/api/meetings/next', async (req, res) => {
              JOIN customers c ON m.customer_id = c.id
              WHERE m.status = 'Pending' 
              ORDER BY m.meeting_date ASC, m.meeting_time ASC 
-             FETCH FIRST 1 ROWS ONLY`, 
+             FETCH FIRST 1 ROWS ONLY`,
             [], { outFormat: oracledb.OUT_FORMAT_OBJECT }
         );
-        
         if (result.rows.length === 0) return res.status(404).send({ message: "No meetings left!" });
-        
         const nextMeeting = result.rows[0];
-        
-        // Mark as completed using the meeting ID
         await connection.execute(
-            `UPDATE meetings SET status = 'Completed' WHERE id = :id`, 
-            { id: nextMeeting.ID }, 
-            { autoCommit: true }
+            `UPDATE meetings SET status = 'Completed' WHERE id = :id`,
+            { id: nextMeeting.ID }, { autoCommit: true }
         );
-        
         res.send(nextMeeting);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error calling next meeting");
-    } finally {
-        if (connection) { 
-  try { 
-    await connection.close(); 
-  } catch(closeErr) { 
-    console.error('Error closing connection:', closeErr); 
-  } 
-}
-    }
+    });
 });
 
 // Start the server

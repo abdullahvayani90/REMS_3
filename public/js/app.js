@@ -82,7 +82,7 @@ async function addPropertyV2(type, area, address, dimensions, price, ownerName, 
     await loadAllData();
     alert("Property and Owner linked successfully in Database!");
     clearFields('p_type', 'p_area', 'p_address', 'p_dimensions', 'p_price', 'p_ownerName', 'p_ownerPhone');
-  } catch (error) { alert("Database Error: " + error.message); }
+  } catch (error) { console.error("Error deleting property:", error); alert("Failed to delete property."); }
 }
 
 async function deleteProperty(id) {
@@ -99,7 +99,7 @@ async function undo() {
     await apiFetch(`/api/properties/restore/${undoStack.pop()}`, { method: 'PUT' });
     await loadAllData();
     alert("Undo Successful! Property restored.");
-  } catch (error) { alert("Failed to undo."); }
+  } catch (error) { console.error("Error restoring property:", error); alert("Failed to undo."); }
 }
 
 // ----------------------------------------------------

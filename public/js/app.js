@@ -90,7 +90,7 @@ async function deleteProperty(id) {
     await apiFetch(`/api/properties/${id}`, { method: 'DELETE' });
     undoStack.push(id);
     await loadAllData();
-  } catch (error) { alert("Failed to delete property."); }
+  } catch (error) { console.error("Error deleting property:", error); alert("Failed to delete property."); }
 }
 
 async function undo() {

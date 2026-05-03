@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Deals & Transactions - REMS V2</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<script>
+  if (sessionStorage.getItem("rems_logged_in") !== "true") {
+    globalThis.location.href = "index.html";
+  }
+</script>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>REMS V2</h2>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"> Dashboard</a>
+      <a href="properties.html"> Property Management</a>
+      <a href="transactions.html" style="background: rgba(255,255,255,0.18);"> Transactions (Deals)</a>
+      <a href="customers.html"> Clients Directory</a>
+      <a href="reports.html"> Reports</a>
+      <a href="meetings.html"> Meetings </a>
+    </nav>
+    <button onclick="logout()" class="btn-logout"> Logout</button>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Agency Deals Ledger</h1>
+
+    <div class="form-card card" style="border-left: 5px solid #27ae60;">
+      <h2>Close a New Deal (Sale)</h2>
+      
+      <div class="form-row">
+        <select id="t_propertyId" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
+          <option value="">-- Select Available Property --</option>
+          </select>
+      </div>
+
+      <h3 style="margin-top: 15px; margin-bottom: 10px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 5px;">Buyer Details & Financials</h3>
+      <div class="form-row">
+        <input type="text" id="t_buyerName" placeholder="Buyer Full Name">
+        <input type="text" id="t_buyerPhone" placeholder="Buyer Phone (Links automatically if exists)">
+      </div>
+
+      <div class="form-row">
+        <input type="number" id="t_price" placeholder="Final Deal Price (Rs)">
+        <input type="number" id="t_commission" placeholder="Your Agency Commission (Rs)">
+        <input type="date" id="t_date">
+      </div>
+
+      <button class="btn-primary" style="margin-top: 10px; background-color: #27ae60;" onclick="handleDeal()">Confirm Deal & Collect Commission</button>
+    </div>
+
+    <div class="table-container card" style="margin-top:20px;">
+      <h2>Recent Transactions</h2>
+      <div class="search-container" style="margin-bottom: 15px; margin-top: 10px;">
+        <input type="text" id="searchTransaction" onkeyup="handleTransactionSearch()" placeholder="Search Deals by Buyer, Seller, or Area...">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Deal ID</th>
+            <th>Date</th>
+            <th>Property Address</th>
+            <th>Seller (Owner)</th>
+            <th>Buyer</th>
+            <th>Property Value</th>
+            <th style="color: #27ae60;">Agency Commission</th>
+          </tr>
+        </thead>
+        <tbody id="transactionTable">
+          </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  // 1. Handle the Deal Submission
+  async function handleDeal() {
+    const propId = document.getElementById("t_propertyId").value;
+    const buyerName = document.getElementById("t_buyerName").value.trim();
+    const buyerPhone = document.getElementById("t_buyerPhone").value.trim();
+    const price = document.getElementById("t_price").value;
+    const commission = document.getElementById("t_commission").value;
+    const date = document.getElementById("t_date").value;
+
+    if (!propId || !buyerName || !buyerPhone || !price || !commission || !date) {
+      alert("Please fill all details to close the deal!");
+      return;
+    }
+
+    // This calls the V2 function from your app.js
+    await recordSaleV2(propId, buyerName, buyerPhone, price, commission, date);
+    
+    // Clear inputs
+    document.getElementById("t_buyerName").value = '';
+    document.getElementById("t_buyerPhone").value = '';
+    document.getElementById("t_price").value = '';
+    document.getElementById("t_commission").value = '';
+    document.getElementById("t_date").value = '';
+  }
+
+  // 2. Custom UI Refresher for this specific page
+// 2. Custom UI Refresher (With Search Support)
+  function refreshTransactionPageUI(filteredTransactions = transactions) {
+    const select = document.getElementById("t_propertyId");
+    if (select) {
+      select.innerHTML = '<option value="">-- Select Available Property --</option>';
+      const availableProps = propertiesArray.filter(p => p.status === 'Available');
+      availableProps.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">ID: ${p.id} - ${p.type} at ${p.area} - Rs ${p.price}</option>`;
+      });
+    }
+
+    const tbody = document.getElementById("transactionTable");
+    if (tbody) {
+      tbody.innerHTML = "";
+      filteredTransactions.forEach(t => {
+        tbody.innerHTML += `<tr>
+          <td><b>#${t.id}</b></td>
+          <td>${t.date ? t.date.split('T')[0] : '-'}</td>
+          <td>${t.address || `Property #${t.propertyId}`}</td>
+          <td>${t.sellerName || '-'}</td>
+          <td>${t.buyerName || '-'}</td>
+          <td>Rs ${Number(t.price).toLocaleString()}</td>
+          <td style="color: #27ae60; font-weight: bold;">Rs ${Number(t.commission).toLocaleString()}</td>
+        </tr>`;
+      });
+    }
+  }
+
+  // Feature: Transaction Search Logic
+  function handleTransactionSearch() {
+    const keyword = document.getElementById("searchTransaction").value.trim().toLowerCase();
+    let filtered = transactions;
+    if (keyword) {
+      filtered = transactions.filter(t => 
+        (t.buyerName && t.buyerName.toLowerCase().includes(keyword)) ||
+        (t.sellerName && t.sellerName.toLowerCase().includes(keyword)) ||
+        (t.address && t.address.toLowerCase().includes(keyword))
+      );
+    }
+    refreshTransactionPageUI(filtered);
+  }
+
+  // 3. Attach our custom refresher to the main app.js refresh sequence
+  const originalRefreshUI = refreshUI;
+  refreshUI = function() {
+    originalRefreshUI(); // Do the normal app.js stuff
+    refreshTransactionPageUI(); // Do our page-specific stuff
+  };
+</script>
+
+</body>
+</html>

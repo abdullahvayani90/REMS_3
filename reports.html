@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports - REMS V2</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<script>
+  if (sessionStorage.getItem("rems_logged_in") !== "true") {
+    globalThis.location.href = "index.html";
+  }
+</script>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h2>REMS V2</h2>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"> Dashboard</a>
+      <a href="properties.html"> Property Management</a>
+      <a href="transactions.html"> Transactions (Deals)</a>
+      <a href="customers.html"> Clients Directory</a>
+      <a href="reports.html" style="background: rgba(255,255,255,0.18);"> Reports</a>
+      <a href="meetings.html"> Meetings </a>
+    </nav>
+    <button onclick="logout()" class="btn-logout"> Logout</button>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Business Reports</h1>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Properties Handled</h3>
+        <p class="stat-value" id="reportTotal">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Current Active Listings</h3>
+        <p class="stat-value" id="reportAvailable">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Total Deals Successfully Closed</h3>
+        <p class="stat-value" id="reportSold">0</p>
+      </div>
+      <div class="stat-card" style="border: 2px solid #27ae60;">
+        <h3 style="color: #27ae60;">Total Agency Revenue</h3>
+        <p class="stat-value" id="reportRevenue" style="color: #27ae60;">Rs 0</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+      <h2>System Summary</h2>
+      <p style="color: #555; line-height: 1.6;">
+        Welcome to your Real Estate Management System Version 2.0. This system operates on a commercial <strong>Agency/Brokerage Model</strong>. 
+        Revenue is calculated strictly based on the <em>Agency Commission</em> earned from closed deals, rather than the total market value of the properties traded. 
+        Client data is automatically managed and de-duplicated based on unique phone numbers to ensure a clean directory.
+      </p>
+    </div>
+
+    <div class="card" style="margin-top: 20px; border-left: 5px solid #4a6cf7;">
+      <h2>Generate Printable Documents</h2>
+      <p style="color: #555; margin-bottom: 20px;">Select a month to print your deals ledger, or print your current active inventory.</p>
+      
+      <div class="form-row" style="align-items: center;">
+        <input type="month" id="reportMonth" style="max-width: 250px;">
+        <button class="btn-primary" style="width: auto; padding: 12px 20px; background-color: #27ae60;" onclick="printMonthlyReport()"> Print Monthly Deals</button>
+      </div>
+      
+      <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; text-align: right;">
+        <button class="btn-primary" style="width: auto; padding: 12px 20px;" onclick="printListings()"> Print Active Listings</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
